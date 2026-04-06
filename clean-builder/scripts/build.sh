@@ -45,6 +45,16 @@ else
     SCRIPT_DIR="tmp_scripts"
 fi
 
+echo "========================================================="
+echo " [3/5] Updating and Installing Feeds BEFORE patching ..."
+echo "========================================================="
+# sbwml 的脚本需要在打补丁前更新好所有 feeds 包源码！
+./scripts/feeds update -a
+./scripts/feeds install -a
+
+echo "========================================================="
+echo " [4/5] Injecting sbwml's Core Optimizations & Patches ..."
+echo "========================================================="
 bash $SCRIPT_DIR/00-prepare_base.sh
 bash $SCRIPT_DIR/01-prepare_base-mainline.sh
 bash $SCRIPT_DIR/02-prepare_package.sh
@@ -54,15 +64,7 @@ bash $SCRIPT_DIR/05-fix-source.sh
 
 
 echo "========================================================="
-echo " [3/5] Updating and Installing Feeds ..."
-echo "========================================================="
-# sbwml 的脚本里其实已经将 feed 替换为了 ImmortalWrt 的源，这保证了最新中文插件包可用
-./scripts/feeds update -a
-./scripts/feeds install -a
-
-
-echo "========================================================="
-echo " [4/5] Generating .config (Pure + Optimizations) ..."
+echo " [5/6] Generating .config (Pure + Optimizations) ..."
 echo "========================================================="
 cat $WORKSPACE/scripts/r76s.config > .config
 
@@ -80,7 +82,7 @@ make defconfig
 
 
 echo "========================================================="
-echo " [5/5] Compiling OpenWrt for NanoPi R76S ..."
+echo " [6/6] Compiling OpenWrt for NanoPi R76S ..."
 echo "========================================================="
 # 下载依赖包 (避免编译中断)
 make download -j8
