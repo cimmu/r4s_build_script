@@ -1,0 +1,67 @@
+name: Build Pure R76S OpenWrt
+
+on:
+  workflow_dispatch:
+    inputs:
+      auto_release:
+        description: '自动将编译成功的内核发布到 Release'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  build:
+    name: Build R76S Firmware
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@main
+
+    - name: Free Disk Space
+      uses: sbwml/actions@free-disk
+      with:
+        build-mount-path: /builder
+
+    - name: Initialization Environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential clang flex bison g++ gawk gcc-multilib g++-multilib \
+        gettext git libncurses5-dev libssl-dev python3-setuptools rsync swig unzip zlib1g-dev \
+        file wget curl libelf-dev ninja-build meson
+
+    - name: Build Firmware
+      working-directory: /builder
+      run: |
+        # 建立隔离干净的工作区
+        cp -r $GITHUB_WORKSPACE/clean-builder ./clean-builder
+        # 直接传入父仓库以利用已有的修复好的脚本
+        cp -r $GITHUB_WORKSPACE/openwrt ./openwrt 
+        cd clean-builder/scripts
+        chmod +x build.sh
+        bash build.sh
+
+    - name: Package Firmware
+      id: package
+      working-directory: /builder/clean-builder/scripts/openwrt_src
+      run: |
+        echo "================ PACKAGING FIRMWARE ================"
+        mkdir -p $GITHUB_WORKSPACE/firmware
+        cp bin/targets/rockchip/armv8/*.img.gz $GITHUB_WORKSPACE/firmware/ || echo "No firmware found!"
+        cp .config $GITHUB_WORKSPACE/firmware/r76s-build.config
+        echo "status=success" >> $GITHUB_OUTPUT
+
+    - name: Upload Firmware to Release
+      if: steps.package.outputs.status == 'success' && github.event.inputs.auto_release == 'true'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: r76s-pure-${{ github.run_number }}
+        name: NanoPi R76S Pure Firmware Build ${{ github.run_number }}
+        files: firmware/*
+        body: |
+          ### 🔥 R76S 全新纯净编译固件
+          - **核心**: OpenWrt 25.12 + Kernel 6.18
+          - **优化**: BBRv3, LTO, BPF, LRNG 集成
+          - **构建**: 剔除冗杂依赖的极致纯净版流水线
