@@ -6,8 +6,10 @@ RES='\e[0m'
 
 echo -e "\n${GREEN_COLOR}Applying R76S brand customization...${RES}\n"
 
-# 0. Add Passwall2 package source
-echo -e "${GREEN_COLOR}Adding Passwall2 package...${RES}"
+# 0. Add Passwall2 package source (Official)
+echo -e "${GREEN_COLOR}Removing bundled Passwall2 and adding official repository...${RES}"
+# 清除 sbwml 捆绑包里自带的 passwall2 避免包名冲突
+rm -rf package/new/helloworld/luci-app-passwall2 package/new/helloworld/passwall2
 git clone https://github.com/Openwrt-Passwall/openwrt-passwall2.git package/new/passwall2 --depth=1
 
 # 1. Modify version source

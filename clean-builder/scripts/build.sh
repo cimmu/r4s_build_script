@@ -61,6 +61,7 @@ bash $SCRIPT_DIR/02-prepare_package.sh
 bash $SCRIPT_DIR/03-convert_translation.sh
 bash $SCRIPT_DIR/04-fix_kmod.sh
 bash $SCRIPT_DIR/05-fix-source.sh
+bash $SCRIPT_DIR/10-custom.sh
 
 
 echo "========================================================="
