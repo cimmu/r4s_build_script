@@ -8,9 +8,9 @@ git clone https://$github/sbwml/autocore-arm -b openwrt-25.12 package/system/aut
 # rockchip - target - r4s/r5s only
 rm -rf target/linux/rockchip
 if [ "$(whoami)" = "sbwml" ]; then
-    git clone https://$gitea/sbwml/target_linux_rockchip-6.x target/linux/rockchip -b v6.18 --depth=1
+    git clone https://$gitea/sbwml/target_linux_rockchip target/linux/rockchip -b v6.18 --depth=1
 else
-    git clone https://"$git_name":"$git_password"@$gitea/sbwml/target_linux_rockchip-6.x target/linux/rockchip -b v6.18 --depth=1
+    git clone https://"$git_name":"$git_password"@$gitea/sbwml/target_linux_rockchip target/linux/rockchip -b v6.18 --depth=1
 fi
 
 # bpf-headers - 6.18
