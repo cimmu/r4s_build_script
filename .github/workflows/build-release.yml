@@ -124,7 +124,7 @@ jobs:
     - name: Compile OpenWrt
       working-directory: /builder
       id: compile
-      continue-on-error: true
+      continue-on-error: false
       env:
         git_name: ${{ secrets.username }}
         git_password: ${{ secrets.password }}
@@ -141,12 +141,15 @@ jobs:
         fi
         echo "latest_release=$tags" >>$GITHUB_ENV
 
-    - name: Extensive logs after a failed compilation
+    - name: Show compile error logs
       working-directory: /builder
-      if: steps.compile.outcome == 'failure'
+      if: failure()
       run: |
         cd openwrt
-        make V=s 2>&1 | grep -E '^(ERROR|make\[|Entering|Leaving)' | tail -100 || true
+        echo "=== Last 200 lines of build log ==="
+        find . -name "*.log" -newer build.sh 2>/dev/null | head -5 | xargs tail -50 2>/dev/null || true
+        echo "=== Running make V=s to capture errors ==="
+        make -j1 V=s 2>&1 | grep -iE '(error:|undefined|cannot|failed|Error)' | tail -50 || true
 
     - name: Delete Cached
       if: ${{ github.event.inputs.ccache == 'true' && github.event.inputs.device != 'armv8' && github.event.inputs.device != 'nanopi-r4s' }}
@@ -191,6 +194,7 @@ jobs:
 
     - name: Prepare Firmware Files
       working-directory: /builder
+      if: steps.compile.outcome == 'success'
       run: |
         mkdir -p rom info
         if [[ "${{ github.event.inputs.device }}" == nanopi-* ]]; then
