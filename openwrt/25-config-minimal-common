@@ -1,4 +1,7 @@
 
+### Kernel - Disable new interactive config options (syncconfig fix)
+# CONFIG_KERNEL_IR_IMON_DECODER is not set
+
 ### Curl
 CONFIG_PACKAGE_curl=y
 CONFIG_PACKAGE_libcurl=y

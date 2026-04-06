@@ -435,8 +435,12 @@ if [ "$BUILD_FAST" = "y" ]; then
     mkdir bin
     find ./staging_dir/ -name '*' -exec touch {} \; >/dev/null 2>&1
     find ./tmp/ -name '*' -exec touch {} \; >/dev/null 2>&1
-    # Remove cached linux kernel source dirs to avoid syncconfig conflicts from wrong targets
-    find ./build_dir -maxdepth 3 -name "linux-*" -type d -prune -exec rm -rf {} + 2>/dev/null || true
+    # Remove ALL target build dirs from toolchain cache to prevent wrong-platform contamination
+    # (e.g., linux-mediatek_filogic dirs polluting an R76S/rockchip build)
+    # The toolchain itself lives in staging_dir/, so removing target-* is safe
+    rm -rf ./build_dir/target-* 2>/dev/null || true
+    # Also sweep any remaining linux-* dirs at any depth (belt-and-suspenders)
+    find ./build_dir -name "linux-*" -type d -prune -exec rm -rf {} + 2>/dev/null || true
 fi
 
 # init openwrt config

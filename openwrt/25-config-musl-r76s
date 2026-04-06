@@ -40,3 +40,6 @@ CONFIG_PACKAGE_kmod-rkvdec=y
 
 ### Rocket NPU
 CONFIG_PACKAGE_kmod-rocket-rockchip=y
+
+### Kernel - Disable new interactive config options (syncconfig fix)
+# CONFIG_KERNEL_IR_IMON_DECODER is not set
