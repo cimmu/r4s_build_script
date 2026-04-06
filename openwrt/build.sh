@@ -458,8 +458,6 @@ else
     echo -e "\r\n${GREEN_COLOR}Building OpenWrt ...${RES}\r\n"
     sed -i "/BUILD_DATE/d" package/base-files/files/usr/lib/os-release
     sed -i "/BUILD_ID/aBUILD_DATE=\"$CURRENT_DATE\"" package/base-files/files/usr/lib/os-release
-    # Pre-configure kernel to avoid interactive prompts in CI (syncconfig restart)
-    [ "$(whoami)" = "runner" ] && yes "" | make kernel_oldconfig 2>/dev/null || true
     make -j$cores IGNORE_ERRORS="n m"
 fi
 
